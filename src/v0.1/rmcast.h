@@ -47,6 +47,7 @@
 
 #define  RMCAST_RATE_FACTOR 500
 
+#pragma pack(1)
 typedef struct rmc_msg_hdr {
 	unsigned char   version;
 	unsigned char	type;
@@ -62,9 +63,11 @@ typedef struct rmc_msg_hbeat {
 	unsigned short 	pgback;
 } rmc_msg_hbeat;
 
+#pragma pack(4)
 typedef struct rmc_member {
 	long			id;
 	char 			*hostname;
+	unsigned long	sequence;
 	unsigned long	sequence_sent;
 	unsigned long	sequence_rcvd;
 	unsigned long	sequence_sync;
@@ -147,6 +150,8 @@ int   rmcast_leave(void);
 int   rmcast_send(void *data, int len);
 //int   rmcast_send_cert(void *data, int len);
 int   rmcast_recv(void *data, int len);
+int   rmcast_timed_recv(void *data, int len, long timeoutms);
+int   rmcast_timed_recvfrom(void *data, int len, long timeoutms, struct sockaddr_in *from);
 int   rmcast_close(void);
 
 #endif

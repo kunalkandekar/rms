@@ -16,10 +16,11 @@ void* reader(void* arg)
 	char inbuf[1024];
 	int ret =0;
 	printf("Reader started...\n");
+	struct sockaddr_in from;
 	while(!stop) {
-		ret = rmcast_recv(inbuf, sizeof(inbuf));
+		ret = rmcast_timed_recvfrom(inbuf, sizeof(inbuf), 0, &from);
 		//inbuf[ret] = '\0'; //null-term just in case
-		printf("\nBuddy sez (%d): %s\n", ret, inbuf);
+		printf("\nBuddy@%s:%d sez (%d): %s\n", inet_ntoa(from.sin_addr), ntohs(from.sin_port), ret, inbuf);
 		fflush(stdout);
 	}
 	return NULL;
