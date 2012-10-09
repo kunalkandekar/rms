@@ -58,7 +58,9 @@ typedef struct rmc_msg_hdr {
 
 typedef struct rmc_msg_hbeat {
 	unsigned long	lost;
-	unsigned long 	namelen;
+	unsigned short 	namelen;
+	unsigned short 	flags;
+	unsigned long	session;
 	unsigned short	acks;
 	unsigned short 	pgback;
 } rmc_msg_hbeat;
@@ -67,6 +69,7 @@ typedef struct rmc_msg_hbeat {
 typedef struct rmc_member {
 	long			id;
 	char 			*hostname;
+    unsigned long	session;
 	unsigned long	sequence;
 	unsigned long	sequence_sent;
 	unsigned long	sequence_rcvd;
@@ -134,6 +137,7 @@ typedef struct rmc_ctrl_block {
 	struct sockaddr_in 	recv_addr;
 	struct sockaddr_in 	mcast_addr;
 	struct sockaddr_in 	ucast_addr;
+	unsigned long 	    mcast_interface;
 	struct ip_mreq 		mreq;
 	pthread_t			rmcastd;
 
@@ -146,6 +150,7 @@ static rmcastcb *rmcb = &_rmcb;
 
 int   rmcast_init(int max_msg_size, int nbufs, int hb_rate_sec, int hb_ack);
 int   rmcast_join(char *group, int port, int ttl);
+int   rmcast_join_on(char *group, int port, int ttl, char *interface);
 int   rmcast_leave(void);
 int   rmcast_send(void *data, int len);
 //int   rmcast_send_cert(void *data, int len);

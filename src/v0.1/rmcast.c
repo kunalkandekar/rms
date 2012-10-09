@@ -22,26 +22,25 @@ int init_ipc_sockets(void) {
 		return 0;
 
 	rmcb->initialized==12345;
-    srand(time(NULL));
 
 	//ipc server socket
 	rmcb->ipc_svr_sock = socket( AF_INET, SOCK_STREAM, 0) ;
 	if(rmcb->ipc_svr_sock < 0) {
-        perror("socket");
+		perror("socket");
 		return rmcb->ipc_svr_sock;
 	}
 	int value = 1;
 	if(setsockopt(rmcb->ipc_svr_sock, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
-        perror("setsockopt/resue-addr");
-        close(rmcb->ipc_svr_sock);
+		perror("setsockopt/resue-addr");
+		close(rmcb->ipc_svr_sock);
 		return -1;
 	}
 	local.sin_family = AF_INET ;
-	local.sin_port = 10000 + (rand() % 30000);    //htons (0) ;
+	local.sin_port = 10000 + (rand() % 30000);	//htons (0) ;
 	local.sin_addr.s_addr = htonl(INADDR_ANY);
 	if(bind(rmcb->ipc_svr_sock,(struct sockaddr *)&local , sizeof(local)) < 0)  {
-        perror("bind");
-        close(rmcb->ipc_svr_sock);
+		perror("bind");
+		close(rmcb->ipc_svr_sock);
 		return -1;
 	}
 	rmcb->ipc_port = ntohs(local.sin_port);
@@ -49,22 +48,22 @@ int init_ipc_sockets(void) {
 
 	ret = listen(rmcb->ipc_svr_sock,1);
 	if(ret < 0) {
-	    printf("\n\tRMC: Error in listen %d",ret);
-        close(rmcb->ipc_svr_sock);
+		printf("\n\tRMC: Error in listen %d",ret);
+		close(rmcb->ipc_svr_sock);
 		return ret;
 	}
 
 	// ipc client socket
 	rmcb->ipc_cli_sock = socket( AF_INET, SOCK_STREAM, 0) ;
 	if(rmcb->ipc_cli_sock < 0) {
-	    perror("socket");
-        close(rmcb->ipc_svr_sock);
+		perror("socket");
+		close(rmcb->ipc_svr_sock);
 		return rmcb->ipc_cli_sock;
 	}
 	if(setsockopt(rmcb->ipc_cli_sock, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
-        perror("setsockopt/reuse-addr");
-        close(rmcb->ipc_svr_sock);
-        close(rmcb->ipc_cli_sock);
+		perror("setsockopt/reuse-addr");
+		close(rmcb->ipc_svr_sock);
+		close(rmcb->ipc_cli_sock);
 		return -1;
 	}
 	rmcb->maxrcv = rmcb->ipc_cli_sock+1;
@@ -72,9 +71,9 @@ int init_ipc_sockets(void) {
 	local.sin_port = 10000 + (rand() % 30000) ;
 	local.sin_addr.s_addr = htonl(INADDR_ANY);
 	if(bind(rmcb->ipc_cli_sock ,(struct sockaddr *)&local , sizeof(local)) < 0) {
-        perror("bind");
-        close(rmcb->ipc_svr_sock);
-        close(rmcb->ipc_cli_sock);
+		perror("bind");
+		close(rmcb->ipc_svr_sock);
+		close(rmcb->ipc_cli_sock);
 		return -1;
 	}
 
@@ -82,16 +81,16 @@ int init_ipc_sockets(void) {
 	local.sin_port = htons (rmcb->ipc_port) ;
 	ret = connect( rmcb->ipc_cli_sock, (struct sockaddr *)&local, sizeof(local));
 	if(ret < 0) {
-	    perror("connect");
-        close(rmcb->ipc_svr_sock);
-        close(rmcb->ipc_cli_sock);
+		perror("connect");
+		close(rmcb->ipc_svr_sock);
+		close(rmcb->ipc_cli_sock);
 		return ret;
 	}
 	rmcb->ipc_sock = accept(rmcb->ipc_svr_sock,(struct sockaddr *)&local, &ret);
 	if(rmcb->ipc_sock < 0) {
-	    perror("accept");
-        close(rmcb->ipc_svr_sock);
-        close(rmcb->ipc_cli_sock);
+		perror("accept");
+		close(rmcb->ipc_svr_sock);
+		close(rmcb->ipc_cli_sock);
 		return rmcb->ipc_sock;
 	}
 	rmcb->maxsock = rmcb->ipc_sock + 1;
@@ -106,22 +105,22 @@ int init_mcast_socket(int mport) {
 		return rmcb->mcast_sock;
 	if(rmcb->mcast_sock >= rmcb->maxsock)
 		rmcb->maxsock = rmcb->mcast_sock + 1;
-    
-    int value = 1;
+	
+	int value = 1;
 	if(setsockopt(rmcb->mcast_sock, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
-        perror("setsockopt/reuse-addr");
-        close(rmcb->mcast_sock);
-        close(rmcb->ipc_svr_sock);
-        close(rmcb->ipc_cli_sock);
+		perror("setsockopt/reuse-addr");
+		close(rmcb->mcast_sock);
+		close(rmcb->ipc_svr_sock);
+		close(rmcb->ipc_cli_sock);
 		return -1;
 	}
 
-    char loop = 0;
+	char loop = 0;
 	if(setsockopt(rmcb->mcast_sock, IPPROTO_IP, IP_MULTICAST_LOOP, &loop, sizeof(char)) < 0) {
-        perror("setsockopt/loopback");
-        close(rmcb->mcast_sock);
-        close(rmcb->ipc_svr_sock);
-        close(rmcb->ipc_cli_sock);
+		perror("setsockopt/loopback");
+		close(rmcb->mcast_sock);
+		close(rmcb->ipc_svr_sock);
+		close(rmcb->ipc_cli_sock);
 		return -1;
 	}
 
@@ -146,10 +145,11 @@ int init_mcast_socket(int mport) {
 	*/
 }
 
-int rmcast_member_init(rmc_member **mem, char* hostname, unsigned long id) {
+int rmcast_member_init(rmc_member **mem, char* hostname, unsigned long id, unsigned long session) {
 	(*mem) = (rmc_member *)malloc(sizeof(rmc_member));
 	(*mem)->id = id;
 	alloc_strcpy(&(*mem)->hostname, hostname);
+	(*mem)->session       = session;
 	(*mem)->sequence      = 0;
 	(*mem)->sequence_sent = 0;
 	(*mem)->sequence_rcvd = 0;
@@ -184,12 +184,11 @@ void clear_msg(rmc_msg *msg) {
 }
 
 rmc_msg *alloc_msg(void) {
-//	rmc_msg *msg = (rmc_msg*)mqueue_remove(rmcb->bufmsgq);
-//	if(msg) {
-//		return msg;
-//	}
-//	else
-		return new_msg();
+	rmc_msg *msg = (rmc_msg*)mqueue_remove(rmcb->bufmsgq);
+	if(msg) {
+		return msg;
+	}
+	return new_msg();
 }
 
 void release_msg(rmc_msg *msg) {
@@ -228,7 +227,7 @@ int  send_nack(rmc_member *mem, rmc_msg* msg) {
 			sizeof(rmcb->mcast_addr));
 }
 
-int  send_hbeat(char *hname, void *pgback, int len) {
+int  send_hbeat(char *hname, void *pgback, int len, int flags) {
 	int itr;
 	int ret;
 	int offset;
@@ -245,6 +244,8 @@ int  send_hbeat(char *hname, void *pgback, int len) {
 	hbeat = (rmc_msg_hbeat*)msg->data;
 	data = msg->data + sizeof(rmc_msg_hbeat);
 	hbeat->lost = htonl(rmcb->self->lost);
+	hbeat->flags   = htons(flags);
+	hbeat->session = htonl(rmcb->self->session);
 
 	if(hname) {
 		hbeat->namelen = htons(strlen(hname) + 1);
@@ -320,7 +321,7 @@ void* rmcast_daemon(void* arg) {
 	unsigned long 	*keys;
 	unsigned long 	*seq;
 
-    struct ipc_metadata rcvd;
+	struct ipc_metadata rcvd;
 	int		addr_len = sizeof(rcvd.from);
 	rmc_msg_hbeat *hbeat;
 
@@ -346,8 +347,8 @@ void* rmcast_daemon(void* arg) {
 						(struct sockaddr*)&(rcvd.from), //(rmcb->recv_addr),
 						&addr_len);
 				/*if((long int) rmcb->recv_addr.sin_addr.s_addr == 0) {
-				    release_msg(msg);
-				    //continue;   //it's our own
+					release_msg(msg);
+					//continue;   //it's our own
 				}*/				
 
 				if(ret < sizeof(rmc_msg_hdr)) {
@@ -372,7 +373,7 @@ void* rmcast_daemon(void* arg) {
 				}
 				switch(msg->hdr->type) {
 				case RMCAST_MSG_DATA: {
-                	rmc_member *mem;				
+					rmc_member *mem;				
 				    if(!htbl_get(rmcb->members, msg->hdr->id, (void*)&mem)) {
 						//member not registered, drop packet
 						release_msg(msg);
@@ -382,7 +383,7 @@ void* rmcast_daemon(void* arg) {
 					if(mem->sequence + 1 != msg->hdr->sequence) {
 						//gap in sequence num
 						if(mem->sequence < msg->hdr->sequence) {
-		                  	printf("\nsending nack to %lu seq got=%lu, exp=", mem->id, msg->hdr->sequence);
+						  	printf("\nsending nack to %lu seq got=%lu, exp=", mem->id, msg->hdr->sequence);
 							//cache msg
 							htbl_put(mem->unseq_msgs, msg->hdr->sequence, msg);
 
@@ -397,7 +398,7 @@ void* rmcast_daemon(void* arg) {
 						//in sequence
 						//syncqueue_signal_data(rmcb->inmsgq, msg);
 						nfound = msg->hdr->length;
-                        rcvd.nbytes = nfound;
+						rcvd.nbytes = nfound;
 						ret = send(rmcb->ipc_sock, &rcvd, sizeof(struct ipc_metadata), 0);
 						ret = 0;
 						while(ret < nfound) {
@@ -423,19 +424,26 @@ void* rmcast_daemon(void* arg) {
 				case RMCAST_MSG_HBEAT: {
 					hbeat = (rmc_msg_hbeat*) msg->data;
 					hbeat->namelen = ntohs(hbeat->namelen);
+					hbeat->flags   = ntohs(hbeat->flags);
+					hbeat->session = ntohl(hbeat->session);
 					data = msg->data + sizeof(rmc_msg_hbeat);
-                	rmc_member *mem = NULL;
+					rmc_member *mem = NULL;
 					if(!htbl_get(rmcb->members, msg->hdr->id, (void*)&mem)) {
 						//member not registered, register it
 						if(hbeat->namelen) {
-							rmcast_member_init(&mem, msg->data, msg->hdr->id);
+							rmcast_member_init(&mem, msg->data, msg->hdr->id, hbeat->session);
 						}
 						else {
-							rmcast_member_init(&mem, "noname", msg->hdr->id);
+							rmcast_member_init(&mem, "noname", msg->hdr->id, hbeat->session);
 						}
 						mem->sequence = msg->hdr->sequence - 1;
 						htbl_put(rmcb->members, mem->id, mem);
 						mqueue_add(rmcb->membersq, mem);
+					}
+					else if(hbeat->session != mem->session) {
+						//new session starting, reset sequence
+						mem->session  = hbeat->session;
+						mem->sequence = msg->hdr->sequence - 1;
 					}
 
 					mem->lost = ntohs(hbeat->lost);
@@ -466,6 +474,7 @@ void* rmcast_daemon(void* arg) {
 					gottime=1;
 					mem->last_hbeat.tv_sec = timeout.tv_sec;
 					mem->last_hbeat.tv_usec = timeout.tv_usec;
+
 					if(mem->sequence + 1 != msg->hdr->sequence) {
 						//gap in sequence num
 						if(mem->sequence < msg->hdr->sequence) {
@@ -495,7 +504,7 @@ void* rmcast_daemon(void* arg) {
 					break;
 
 				case RMCAST_MSG_LEAVE: {
-                	rmc_member *mem;
+					rmc_member *mem;
 					if(htbl_remove(rmcb->members, msg->hdr->id, (void*)&mem)) {
 						//clean up unseq msgs buffer
 						count = htbl_count(mem->unseq_msgs);
@@ -579,7 +588,7 @@ void* rmcast_daemon(void* arg) {
 		//heartbeat
 		if(timeout.tv_sec - rmcb->self->last_hbeat.tv_sec >= rmcb->hbeat_rate) {
 			//time for hbeat
-			send_hbeat(rmcb->hostname,NULL,0);
+			send_hbeat(rmcb->hostname,NULL,0,0);
 
 			//check msg send rate
 			t1 = (float)timeout.tv_sec + ((float)timeout.tv_usec)/1000000;
@@ -608,12 +617,12 @@ void* rmcast_daemon(void* arg) {
 			//clear buffers
 			count = mqueue_size(rmcb->membersq);
 			for(itr=0; itr < count; itr++) {
-            	rmc_member *mem = mqueue_peek_at_index(rmcb->membersq, itr);
+				rmc_member *mem = mqueue_peek_at_index(rmcb->membersq, itr);
 				if(mem->sequence_sync < rmcb->self->sequence_sync);
 					rmcb->self->sequence_sync = mem->sequence_sync;
 			}
 			while(rmcb->oldest_seq < rmcb->self->sequence_sync){
-			    rmc_msg *msg = NULL;
+				rmc_msg *msg = NULL;
 				if(htbl_remove(rmcb->outmsgbuf, rmcb->oldest_seq, (void*)&msg)) {
 					release_msg(msg);
 				}
@@ -640,6 +649,8 @@ void* rmcast_daemon(void* arg) {
 int   rmcast_init(int max_msg_size, int nbufs, int hb_rate_sec, int hb_ack) {
 	int ret;
 	struct hostent *hp;
+
+	srand(time(NULL));
 
 	rmcb->version = 0;
 
@@ -691,7 +702,9 @@ int   rmcast_init(int max_msg_size, int nbufs, int hb_rate_sec, int hb_ack) {
 		return -1;
 	hp = gethostbyname(rmcb->hostname);
 	rmcb->id = ((struct in_addr*)hp->h_addr)->s_addr;
-	rmcast_member_init(&rmcb->self, rmcb->hostname, rmcb->id);
+	rmcast_member_init(&rmcb->self, rmcb->hostname, rmcb->id, rand());
+	
+	rmcb->mcast_interface = INADDR_ANY;
 
 	ret = init_ipc_sockets();
 	if(ret < 0) {
@@ -701,6 +714,18 @@ int   rmcast_init(int max_msg_size, int nbufs, int hb_rate_sec, int hb_ack) {
 }
 
 int   rmcast_join(char *group, int port, int inttl) {
+	return rmcast_join_on(group, port, inttl, NULL);
+}
+
+int   rmcast_join_on(char *group, int port, int inttl, char *interface) {
+	struct sockaddr_in localif;
+	localif.sin_addr.s_addr = htonl(INADDR_ANY);
+	if(interface) {
+		inet_pton(AF_INET, interface, &(localif.sin_addr)); 
+	}
+
+	rmcb->mcast_interface = localif.sin_addr.s_addr;
+
 	int ret;
 	unsigned char ttl;
 	ttl = (unsigned char)inttl;
@@ -728,7 +753,7 @@ int   rmcast_join(char *group, int port, int inttl) {
 	//join group
 	/* use setsockopt() to request that the kernel join a multicast group */
 	rmcb->mreq.imr_multiaddr.s_addr=inet_addr(rmcb->group);
-	rmcb->mreq.imr_interface.s_addr=htonl(INADDR_ANY);
+	rmcb->mreq.imr_interface.s_addr=rmcb->mcast_interface;
 	if (setsockopt(rmcb->mcast_sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, &rmcb->mreq,sizeof(rmcb->mreq)) < 0) {
 		return -1;
 	}
@@ -814,8 +839,9 @@ int   rmcast_close(void) {
 	if(rmcb->active) {
 		rmcast_leave();
 	}
+	pthread_join(rmcb->rmcastd, NULL);
 	while((msg = mqueue_remove(rmcb->bufmsgq))!=NULL) {
-		//clear_msg(msg);
+		clear_msg(msg);
 	}
 	free(rmcb->hostname);
 
@@ -824,7 +850,6 @@ int   rmcast_close(void) {
 	htbl_free(rmcb->outmsgbuf);
 	syncqueue_destroy(rmcb->inmsgq);
 	htbl_free(rmcb->members);
-
 	return 0;
 }
 
@@ -832,8 +857,8 @@ int   rmcast_send(void *data, int len) {
 	int ret=0;
 	if(!rmcb->active)
 		return -1;
-    
-    //send lenght first, then data -- OPTIMIZE THIS!
+	
+	//send length (metadata) first, then data. 2 system calls / send! -- OPTIMIZE THIS!
 	ret = send(rmcb->ipc_cli_sock,&len, sizeof(int),0);
 	if(ret < 0)
 		return -1;
@@ -846,7 +871,7 @@ int   rmcast_recv(void *data, int len) {
 }
 
 int   rmcast_timed_recv(void *data, int len, long timeoutms) {
-    return rmcast_timed_recvfrom(data, len, timeoutms, NULL);
+	return rmcast_timed_recvfrom(data, len, timeoutms, NULL);
 }
 
 int   rmcast_timed_recvfrom(void *data, int len, long timeoutms, struct sockaddr_in *from) {
@@ -872,7 +897,7 @@ int   rmcast_timed_recvfrom(void *data, int len, long timeoutms, struct sockaddr
 		if(ret < 0)
 			return -1;
 		if(from) {
-            memcpy(from, &(rcvd.from), sizeof(struct sockaddr_in));
+			memcpy(from, &(rcvd.from), sizeof(struct sockaddr_in));
 		}
 		if(rcvd.nbytes <= len) {
 			return recv(rmcb->ipc_cli_sock, data, rcvd.nbytes, 0);

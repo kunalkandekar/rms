@@ -12,7 +12,7 @@ UTILDIR=../lib/util
 
 BINDIR=../../bin
 
-LINK	= -lcurses -lm -lpthread -ldl -lresolv #-lposix4 -lsocket -lnsl 
+LINK	= -lm -lpthread -ldl -lresolv #-lposix4 -lsocket -lnsl -lcurses 
 
 INCLUDE	= -I./ -I/usr/include -I$(UTILDIR)
 
